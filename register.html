@@ -378,70 +378,114 @@ function showError(text) {
         .fadeIn();
 
 }
-
 /* =========================
-   CANVAS API
+   SIGNATURE CANVAS
 ========================= */
 
-let canvas =
-    document.getElementById("signatureCanvas");
-
-let ctx =
-    canvas.getContext("2d");
+let canvas = document.getElementById("signatureCanvas");
+let ctx = canvas.getContext("2d");
 
 let drawing = false;
 
 
-canvas.addEventListener(
-    "mousedown",
-    startDrawing
-);
+/* Canvas settings */
 
-canvas.addEventListener(
-    "mousemove",
-    draw
-);
+ctx.lineWidth = 2;
+ctx.lineCap = "round";
+ctx.lineJoin = "round";
 
-canvas.addEventListener(
-    "mouseup",
-    stopDrawing
-);
 
+/* Prevent scrolling while signing */
+
+canvas.style.touchAction = "none";
+
+
+/* =========================
+   POINTER EVENTS
+========================= */
+
+canvas.addEventListener("pointerdown", startDrawing);
+canvas.addEventListener("pointermove", draw);
+canvas.addEventListener("pointerup", stopDrawing);
+canvas.addEventListener("pointercancel", stopDrawing);
+canvas.addEventListener("pointerleave", stopDrawing);
+
+
+/* =========================
+   START DRAWING
+========================= */
 
 function startDrawing(e) {
 
     drawing = true;
 
+    canvas.setPointerCapture(e.pointerId);
+
+    let rect = canvas.getBoundingClientRect();
+
+    let x =
+        (e.clientX - rect.left) *
+        (canvas.width / rect.width);
+
+    let y =
+        (e.clientY - rect.top) *
+        (canvas.height / rect.height);
+
     ctx.beginPath();
 
-    ctx.moveTo(
-        e.offsetX,
-        e.offsetY
-    );
-
+    ctx.moveTo(x, y);
 }
 
+
+/* =========================
+   DRAW
+========================= */
 
 function draw(e) {
 
     if (!drawing) return;
 
-    ctx.lineTo(
-        e.offsetX,
-        e.offsetY
-    );
+    let rect = canvas.getBoundingClientRect();
+
+    let x =
+        (e.clientX - rect.left) *
+        (canvas.width / rect.width);
+
+    let y =
+        (e.clientY - rect.top) *
+        (canvas.height / rect.height);
+
+    ctx.lineTo(x, y);
 
     ctx.stroke();
-
 }
 
 
-function stopDrawing() {
+/* =========================
+   STOP DRAWING
+========================= */
+
+function stopDrawing(e) {
 
     drawing = false;
 
+    if (e.pointerId) {
+
+        try {
+            canvas.releasePointerCapture(e.pointerId);
+        } catch (error) {
+            // Ignore if pointer capture was already released
+        }
+
+    }
+
+    ctx.closePath();
 }
 
+
+/* =========================
+   CLEAR CANVAS
+========================= */
 
 $("#clearCanvas").click(function() {
 
