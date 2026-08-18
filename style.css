@@ -258,6 +258,17 @@ width:100%;
         6px 6px 0 #e0a0b8,
         0 5px 15px #8e526622;
     position: relative;
+#signatureCanvas {
+    width: 100%;
+    max-width: 1000px;
+    height: 180px;
+    display: block;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background: white;
+    touch-action: none;
+    cursor: crosshair;
+}
 }
 .info-card,
 .event-card,
